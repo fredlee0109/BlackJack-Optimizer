@@ -14,8 +14,10 @@
  * ask if Double is allowed
  * use Serializable to only do init() once.
  * create a list of commands
+ * allow for different # of decks
  * allow for different blackjack styles
  * allow for different strategies, such as counting.
+ * ask user if they want to have "counting" in the system
  * show statistics of winning with the using strategy
  */
 import java.util.HashMap;
@@ -25,13 +27,15 @@ public class BlackJackOptimizer {
 	public static HashMap<String, String> hard = new HashMap();
 	public static HashMap<String, String> soft = new HashMap();
 	public static HashMap<String, String> pair = new HashMap();
+	public HashMap<String, Integer> newCards1 = new HashMap();
+	public HashMap<String, Integer> newCards2 = new HashMap();
 	public int dealerCard; //from 1 to 11, with 11 = Ace
 	public int playerCard1;
 	public int playerCard2;
 	public int total = 0;
 	public int total1 = 0;
 	public int total2 = 0;
-	public boolean bsoft = false;
+	public int bsoft = 0;
 	public boolean bpair = false;
 	public boolean initialized = true;
 	/**
@@ -46,18 +50,24 @@ public class BlackJackOptimizer {
 		if (playerCard1 == playerCard2) {
 			bpair = true;
 		} 
-		if (playerCard1 == 11 || playerCard2 == 11) {
-			bsoft = true;
+		if (playerCard1 == 11) {
+			bsoft++;
+		} 
+		if (playerCard2 == 11) {
+			bsoft++;
 		}
 		total = playerCard1 + playerCard2;
 	}
 
+	/**
+	 * 'special' constructor to tell user to initalize the game first
+	 */
 	private BlackJackOptimizer() {
 		initialized = false;
 	}
 
 	/**
-	 * Called once. Creates 3 HashMap of the table.
+	 * Called once. Creates 3 HashMaps of the table.
 	 * For Hard, Soft, Pair, respectively
 	 * Key: PlayerCardTotal + DealerCard
 	 * Val: H, Dh, Ds, S, P. (meaning Hit, Stand, Split, Double otherwise hit,
@@ -69,31 +79,31 @@ public class BlackJackOptimizer {
 		for (Integer i = 5; i <= 21; i++) {
 			for (Integer j = 2; j <= 11; j++) {
 				String tempKey = i.toString() + j.toString();
-				if (i >= 5 && i <= 8 && j >= 2 && j <= 4) {
+				if (i <= 8 && j >= 2 && j <= 4) {
 					hard.put(tempKey, "H");
-				} else if (i >= 5 && i <= 7 && j >= 5 && j <= 6) {
+				} else if (i <= 7 && j >= 5 && j <= 6) {
 					hard.put(tempKey, "H");
-				} else if (i >= 5 && i <= 9 && j >= 7 && j <= 11) {
+				} else if (i <= 9 && j >= 7) {
 					hard.put(tempKey, "H");
-				} else if (i == 10 && j >= 10 && j <= 11) {
+				} else if (i == 10 && j >= 10) {
 					hard.put(tempKey, "H");
-				} else if (i >= 9 && i <= 11 && j >= 2 && j <= 4) {
+				} else if (i >= 9 && i <= 11 && j <= 4) {
 					hard.put(tempKey, "D");
 				} else if (i >= 8 && i <= 11 && j >= 5 && j <= 6) {
 					hard.put(tempKey, "D");
 				} else if (i >= 10 && i <= 11 && j >= 7 && j <= 9) {
 					hard.put(tempKey, "D");
-				} else if (i == 11 && j >= 10 && j <= 11) {
+				} else if (i == 11 && j >= 10) {
 					hard.put(tempKey, "D");
-				} else if (i == 12 && j >= 2 && j <= 3) {
+				} else if (i == 12 && j <= 3) {
 					hard.put(tempKey, "H");
-				} else if (i >= 12 && i <= 16 && j >= 7 && j <= 11) {
+				} else if (i >= 12 && i <= 16 && j >= 7) {
 					hard.put(tempKey, "H");
 				} else if (i == 12 && j >= 4 && j <= 6) {
 					hard.put(tempKey, "S");
-				} else if (i >= 13 && i <= 21 && j >= 2 && j <= 6) {
+				} else if (i >= 13 && j <= 6) {
 					hard.put(tempKey, "S");
-				} else if (i >= 17 && i <= 21 && j >= 7 && j <= 11) {
+				} else if (i >= 17 && j >= 7) {
 					hard.put(tempKey, "S");
 				} else {
 					System.out.print("Error while hard on i = ");
@@ -132,7 +142,7 @@ public class BlackJackOptimizer {
 				} else if (i >= 19 && j >= 9 && j <= 10) {
 					soft.put(tempKey, "S");
 				} else {
-					System.out.print("Error while hard on i = ");
+					System.out.print("Error while soft on i = ");
 					System.out.print(i);
 					System.out.print("and j = ");
 					System.out.println(j);
@@ -188,7 +198,7 @@ public class BlackJackOptimizer {
 				} else if (i == 11) {
 					pair.put(tempKey, "P");
 				} else {
-					System.out.print("Error while hard on i = ");
+					System.out.print("Error while pair on i = ");
 					System.out.print(i);
 					System.out.print("and j = ");
 					System.out.println(j);
@@ -215,8 +225,14 @@ public class BlackJackOptimizer {
 			Integer temp = playerCard1;
 			total = temp.toString() + dealerCard;
 			return pair.get(total);
-		} else if (bsoft) {
-			return soft.get(total);
+		} else if (bsoft != 0) {
+			if (this.total < 21) {
+				return soft.get(total);
+			} else {
+				Integer k = total() - 10;
+				String tempTotal = k.toString() + dealerCard;
+				return hard.get(tempTotal);
+			}
 		} else {
 			return hard.get(total);
 		}
@@ -258,7 +274,8 @@ public class BlackJackOptimizer {
 		System.out.println("             @author Fred Lee");
 		System.out.println("  -----------------------------------------");
 		System.out.println("Type : [Dealer's card] [Your 1st Card] [2nd Card]");
-		System.out.println("to start a new game");
+		System.out.println("to start a new game.");
+		System.out.println("Type : 'end' to stop program.");
 
 		BlackJackOptimizer bjo = new BlackJackOptimizer();
 		bjo.init();
@@ -276,54 +293,38 @@ public class BlackJackOptimizer {
 				break;
 			} else {
 				if (numbers.length == 3) {
+					bjo.newCards1.clear();
+					bjo.newCards2.clear();
 					splitted = false;
 					boolean one = false;
 					boolean two = false;
 					boolean three = false;
-					if (numbers[0].equals("A")) {
-						one = true;
+					Integer[] numbersInt = new Integer[3];
+					for (int o = 0; o < numbersInt.length; o++) {
+						if (numbers[o].equals("A") || numbers[o].equals("a")) {
+							numbersInt[o] = 11;
+						} else if (numbers[o].equals("K") || numbers[o].equals("k") 
+							|| numbers[o].equals("Q") || numbers[o].equals("q")
+							|| numbers[o].equals("J") || numbers[o].equals("j")) {
+							numbersInt[o] = 10;
+						} else {
+							numbersInt[o] = Integer.parseInt(numbers[o]);
+						}
 					}
-					if (numbers[1].equals("A")) {
-						two = true;
-					}
-					if (numbers[2].equals("A")) {
-						three = true;
-					}
-					if (!one && !two && !three) {
-						bjo = new BlackJackOptimizer(Integer.parseInt(numbers[0]),
-							Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2]));
-					} else if (one && two && three) {
-						bjo = new BlackJackOptimizer(11, 11, 11);
-					} else if (one && two && !three) {
-						bjo = new BlackJackOptimizer(11, 11, 
-							Integer.parseInt(numbers[2]));
-					} else if (one && !two && !three) {
-						bjo = new BlackJackOptimizer(11, 
-							Integer.parseInt(numbers[1]), Integer.parseInt(numbers[2]));
-					} else if (one && !two && three) {
-						bjo = new BlackJackOptimizer(11,
-							Integer.parseInt(numbers[1]), 11);
-					} else if (!one && two && three) {
-						bjo = new BlackJackOptimizer(Integer.parseInt(numbers[0]),
-							11, 11);
-					} else if (!one && two && !three) {
-						bjo = new BlackJackOptimizer(Integer.parseInt(numbers[0]),
-							11, Integer.parseInt(numbers[2]));
-					} else {
-						bjo = new BlackJackOptimizer(Integer.parseInt(numbers[0]),
-							Integer.parseInt(numbers[1]), 11);
-					}
+					bjo = new BlackJackOptimizer(numbersInt[0], numbersInt[1],
+						numbersInt[2]);
 					if (bjo.total() == 21) {
 						System.out.println("Black Jack! You Win!");
 					} else {
+						System.out.println();
 						System.out.print("Dealer: ");
 						System.out.print(numbers[0]);
 						System.out.print(" Player: ");
-						if (bjo.total() > 21 && bjo.bsoft) {
+						if (bjo.total() > 21 && bjo.bsoft != 0) {
 							bjo.total -= 10;
-						} 
+						}
 						System.out.print(bjo.total());
-						if (bjo.bsoft && bjo.total() - 10 <= 21) {
+						if (bjo.bsoft != 0 && bjo.total() - 10 <= 21) {
 							System.out.print(" or ");
 							System.out.print(bjo.total() - 10);
 						}
@@ -332,10 +333,8 @@ public class BlackJackOptimizer {
 						if (decision.equals("H")) {
 							System.out.println("I recommend HIT");
 							System.out.println("Type new card.");
-							System.out.println();
 						} else if (decision.equals("S")) {
 							System.out.println("I recommend STAND");
-							System.out.println();
 						} else if (decision.equals("P")) {
 							splitted = true;
 							splitted1 = bjo.playerCard1;
@@ -345,47 +344,98 @@ public class BlackJackOptimizer {
 							System.out.print(" and ");
 							System.out.println(splitted2);
 							System.out.println("Type new card for 1st split");
-							System.out.println();
 						} else if (decision.equals("D")) {
 							System.out.println("I recommend DOUBLE");
 							System.out.println("Type new card.");
-							System.out.println();
 						}
 					}
-				} else {
+				} else { // length == 1
 					if (!bjo.initialized) {
 						System.out.println("Please start a new game first.");
 					} else {
 						if (!splitted) {
-							bjo.hit(Integer.parseInt(numbers[0]));
+							if (bjo.newCards1.containsKey(numbers[0])) {
+								int val = bjo.newCards1.get(numbers[0]);
+								bjo.newCards1.put(numbers[0], val++);
+							} else {
+								bjo.newCards1.put(numbers[0], 1);
+							}
+							if (numbers[0].equals("A") || numbers[0].equals("a")) {
+								bjo.hit(11);
+								bjo.bsoft++;
+							} else if (numbers[0].equals("K") || numbers[0].equals("k")
+								|| numbers[0].equals("Q") || numbers[0].equals("q")
+								|| numbers[0].equals("J") || numbers[0].equals("j")) {
+								bjo.hit(10);
+							} else {
+								bjo.hit(Integer.parseInt(numbers[0]));
+							}
 						} else if (on1stSplit) {
+							if (bjo.newCards1.containsKey(numbers[0])) {
+								int val = bjo.newCards1.get(numbers[0]);
+								bjo.newCards1.put(numbers[0], val++);
+							} else {
+								bjo.newCards1.put(numbers[0], 1);
+							}
+							if (numbers[0].equals("A") || numbers[0].equals("a")) {
+								bjo.hit1(11);
+								bjo.bsoft++;
+							} else if (numbers[0].equals("K") || numbers[0].equals("k")
+								|| numbers[0].equals("Q") || numbers[0].equals("q")
+								|| numbers[0].equals("J") || numbers[0].equals("j")) {
+								bjo.hit1(10);
+							} else {
+								bjo.hit1(Integer.parseInt(numbers[0]));
+							}
 							bjo.hit1(Integer.parseInt(numbers[0]));
 						} else {
-							bjo.hit1(Integer.parseInt(numbers[0]));
+							if (bjo.newCards2.containsKey(numbers[0])) {
+								int val = bjo.newCards2.get(numbers[0]);
+								bjo.newCards2.put(numbers[0], val++);
+							} else {
+								bjo.newCards2.put(numbers[0], 1);
+							}
+							if (numbers[0].equals("A") || numbers[0].equals("a")) {
+								bjo.hit2(11);
+								bjo.bsoft++;
+							} else if (numbers[0].equals("K") || numbers[0].equals("k")
+								|| numbers[0].equals("Q") || numbers[0].equals("q")
+								|| numbers[0].equals("J") || numbers[0].equals("j")) {
+								bjo.hit2(10);
+							} else {
+								bjo.hit2(Integer.parseInt(numbers[0]));
+							}
+							bjo.hit2(Integer.parseInt(numbers[0]));
 						}
+						System.out.println();
 						System.out.print("Dealer: ");
 						System.out.print(bjo.dealerCard);
 						System.out.print(" Player: ");
+						if (bjo.total() > 21 && bjo.bsoft != 0) {
+							bjo.total -= 10;
+							bjo.bsoft--;
+						}
 						System.out.print(bjo.total());
-						if (bjo.bsoft && bjo.total() - 10 <= 21) {
+						if (bjo.bsoft != 0 && bjo.total() - 10 <= 21) {
 							System.out.print(" or ");
 							System.out.print(bjo.total() - 10);
 						}
 						System.out.println();
-						if (bjo.bsoft && bjo.total - 10 > 21) {
+						if (bjo.bsoft != 0 && bjo.total - 10 > 21) {
 							bjo.total -= 10;
 						}
-						if (bjo.total() > 21) {
+						if (bjo.bsoft == 0 && bjo.total() > 21) {
+							System.out.println("You lost! :(");
+						} else if (bjo.bsoft != 0 && 
+							(bjo.total() > 21 && bjo.total() - 10 > 21)) {
 							System.out.println("You lost! :(");
 						} else {
 							String decision = bjo.decision();
 							if (decision.equals("H")) {
 								System.out.println("I recommend HIT");
 								System.out.println("Type new card.");
-								System.out.println();
 							} else if (decision.equals("S")) {
 								System.out.println("I recommend STAND");
-								System.out.println();
 							} else if (decision.equals("P")) {
 								splitted = true;
 								splitted1 = bjo.playerCard1;
@@ -395,11 +445,9 @@ public class BlackJackOptimizer {
 								System.out.print(" and ");
 								System.out.println(splitted2);
 								System.out.println("Type new card for 1st split");
-								System.out.println();
 							} else if (decision.equals("D")) {
 								System.out.println("I recommend DOUBLE");
 								System.out.println("Type new card.");
-								System.out.println();
 							}
 						}
 					}
