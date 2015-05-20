@@ -70,8 +70,7 @@ public class BlackJackOptimizer {
 	 * Called once. Creates 3 HashMaps of the table.
 	 * For Hard, Soft, Pair, respectively
 	 * Key: PlayerCardTotal + DealerCard
-	 * Val: H, Dh, Ds, S, P. (meaning Hit, Stand, Split, Double otherwise hit,
-	 * Double otherwise stand)
+	 * Val: H, D, S, P. (meaning Hit, Double, Stand, Split, respectively)
 	 * src: http://wizardofodds.com/games/blackjack/strategy/calculator/
 	 */
 	private void init() {

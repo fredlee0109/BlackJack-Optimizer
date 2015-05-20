@@ -4,6 +4,9 @@ BlackJackOptimizer follows the basic BlackJack Strategy
 Assumes the game is played under Single Deck, American Style,
 Dealer Stands on Soft 17, Double After Split is Allowed, and 
 No Surrender.
+<br />
+<br />
+The program tells the user whether to HIT, SPLIT, DOUBLE, STAND, based on available information given. It is time to beat the dealer!
 
 <h2> How to use BlackJackOptimizer </h2>
 <ol>
