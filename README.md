@@ -1,4 +1,4 @@
-<h1> Heading </h1>
+<h1> BlackJackOptimizer </h1>
 <h2> About </h2>
 BlackJackOptimizer follows the basic BlackJack Strategy
 Assumes the game is played under Single Deck, American Style,
@@ -6,12 +6,12 @@ Dealer Stands on Soft 17, Double After Split is Allowed, and
 No Surrender.
 
 <h2> How to use BlackJackOptimizer </h2>
-<p>
-1) on command line: javac.BlackJackOptimizer.java <br />
-2) on command line: java BlackJackOptimizer <br />
-3) Type : [Dealer's card] [Your 1st Card] [2nd Card] to start a new game anytime. <br />
-4) Type : 'help' for commands <br />
-</p>
+<ol>
+<li> on command line: javac.BlackJackOptimizer.java </li>
+<li> on command line: java BlackJackOptimizer </li>
+<li> Type : [Dealer's card] [Your 1st Card] [2nd Card] to start a new game anytime. </li>
+<li> Type : 'help' for commands </li>
+</ol>
 
 <h2> For the future: </h2>
  * Create a GUI, 
@@ -25,4 +25,4 @@ No Surrender.
  * ask user if they want to have "counting" in the system
  * show statistics of winning with the using strategy
 
- <p> @author: Fred Lee </p>
+ <p> @Fred Lee <br /> More at <a href="http://www.fredlee0109.github.io"> github </a>.</p>
