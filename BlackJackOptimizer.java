@@ -27,7 +27,8 @@ public class BlackJackOptimizer {
 	public static HashMap<String, String> hard = new HashMap();
 	public static HashMap<String, String> soft = new HashMap();
 	public static HashMap<String, String> pair = new HashMap();
-	public HashMap<String, Integer> newCards1 = new HashMap();
+	public HashMap<String, Integer> newCards1 = new HashMap(); 
+	// should use linkedlist instead
 	public HashMap<String, Integer> newCards2 = new HashMap();
 	public int dealerCard; //from 1 to 11, with 11 = Ace
 	public int playerCard1;
