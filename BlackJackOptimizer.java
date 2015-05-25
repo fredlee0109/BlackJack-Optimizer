@@ -28,8 +28,9 @@ public class BlackJackOptimizer {
     public static HashMap<String, String> soft = new HashMap();
     public static HashMap<String, String> pair = new HashMap();
     public HashMap<String, Integer> newCards1 = new HashMap(); 
-    // should use linkedlist instead
+    // card to count
     public HashMap<String, Integer> newCards2 = new HashMap();
+    // card to count
     public int dealerCard; //from 1 to 11, with 11 = Ace
     public int playerCard1;
     public int playerCard2;
@@ -285,7 +286,6 @@ public class BlackJackOptimizer {
         String userInput = in.nextLine();
         Boolean splitted = false;
         Boolean on1stSplit = true;
-        Boolean first = true;
         int splitted1 = 0;
         int splitted2 = 0;
         while (!userInput.equals("end")) {
@@ -314,7 +314,6 @@ public class BlackJackOptimizer {
                         numbersInt[2]);
                     if (bjo.total() == 21) {
                         System.out.println("Black Jack! You Win!");
-                        first = false;
                     } else {
                         System.out.println();
                         System.out.print("Dealer: ");
@@ -333,12 +332,11 @@ public class BlackJackOptimizer {
                         if (decision.equals("H")) {
                             System.out.println("I recommend HIT");
                             System.out.println("Type new card.");
-                            first = false;
                         } else if (decision.equals("S")) {
                             System.out.println("I recommend STAND");
-                            first = false;
                         } else if (decision.equals("P")) {
                             splitted = true;
+                            on1stSplit = true;
                             splitted1 = bjo.playerCard1;
                             splitted2 = bjo.playerCard2;
                             System.out.print("I recommend SPLIT and HIT to: ");
@@ -346,26 +344,15 @@ public class BlackJackOptimizer {
                             System.out.print(" and ");
                             System.out.println(splitted2);
                             System.out.println("Type new card for 1st split");
-                            first = true;
-                        // } else if (decision.equals("Ds")) {
-                        //     if (first) {
-                        //         System.out.println("I recommend DOUBLE");
-                        //     } else {
-                        //         System.out.println("I recommend STAND");
-                        //     }
-                        // } else if (decision.equals("Dh")) {
-                        //     if (first) {
-                        //         System.out.println("I recommend DOUBLE");
-                        //     } else {
-                        //         System.out.println("I recommend HIT");
-                        //     }
-                        // }
                         } else if (decision.equals("Dh") || decision.equals("Ds")) {
                             System.out.println("I recommend DOUBLE");
                             System.out.println("Type new card.");
-                            first = false;
                         }
                     }
+                    // else
+                    // 1) hit: hit/stand
+                    // 2) split: hit/double/stand > hit/stand. for both.
+                    // 3) stand: done.
                 } else { // length == 1
                     if (!bjo.initialized) {
                         System.out.println("Please start a new game first.");
@@ -404,7 +391,6 @@ public class BlackJackOptimizer {
                             } else {
                                 bjo.hit1(Integer.parseInt(numbers[0]));
                             }
-                            bjo.hit1(Integer.parseInt(numbers[0]));
                         } else {
                             if (bjo.newCards2.containsKey(numbers[0])) {
                                 int val = bjo.newCards2.get(numbers[0]);
@@ -422,7 +408,6 @@ public class BlackJackOptimizer {
                             } else {
                                 bjo.hit2(Integer.parseInt(numbers[0]));
                             }
-                            bjo.hit2(Integer.parseInt(numbers[0]));
                         }
                         System.out.println();
                         System.out.print("Dealer: ");
@@ -447,41 +432,36 @@ public class BlackJackOptimizer {
                             (bjo.total() > 21 && bjo.total() - 10 > 21)) {
                             System.out.println("You lost! :(");
                         } else {
+                            if (splitted) {
+                                if (on1stSplit) {
+                                    bjo.total = splitted1;
+                                } else {
+                                    bjo.total = splitted2;
+                                }
+                            }
                             String decision = bjo.decision();
                             if (decision.equals("H")) {
                                 System.out.println("I recommend HIT");
                                 System.out.println("Type new card.");
-                                first = false;
                             } else if (decision.equals("S")) {
                                 System.out.println("I recommend STAND");
-                                first = false;
-                            // } else if (decision.equals("P")) {
-                            //     splitted = true;
-                            //     splitted1 = bjo.playerCard1;
-                            //     splitted2 = bjo.playerCard2;
-                            //     System.out.print("I recommend SPLIT and HIT to: ");
-                            //     System.out.print(splitted1);
-                            //     System.out.print(" and ");
-                            //     System.out.println(splitted2);
-                            //     System.out.println("Type new card for 1st split");
-                            //     first = true;
+                                if (splitted && on1stSplit && bjo.total() > 21) {
+                                    on1stSplit = false;
+                                    System.out.println("Hit for 2nd Splitted Card.");
+                                }
                             } else if (decision.equals("Ds")) {// only runs after split
-	                            if (first) {
-	                                System.out.println("I recommend DOUBLE");
-	                            } else {
-	                                System.out.println("I recommend STAND");
-	                            }
+                                if (splitted) {
+                                    System.out.println("I recommend DOUBLE");
+                                } else {
+                                    System.out.println("I recommend STAND");
+                                }
 	                        } else if (decision.equals("Dh")) {// only runs after split
-	                            if (first) {
-	                                System.out.println("I recommend DOUBLE");
-	                            } else {
-	                                System.out.println("I recommend HIT");
-	                            }
+                                if (splitted) {
+                                    System.out.println("I recommend DOUBLE");
+                                } else {
+                                    System.out.println("I recommend HIT");
+                                }
 	                        }
-                            // } else if (decision.equals("D")) {
-                            //     System.out.println("I recommend DOUBLE");
-                            //     System.out.println("Type new card.");
-                            // }
                         }
                     }
                 }

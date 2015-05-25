@@ -28,4 +28,4 @@ The program tells the user whether to HIT, SPLIT, DOUBLE, STAND, based on availa
  * ask user if they want to have "counting" in the system
  * show statistics of winning with the using strategy
 
- <p> @Fred Lee <br /> More at <a href="http://fredlee0109.github.io/"> github </a>.</p>
+ <p> @Fred Lee <br /> More at <a href="http://fredlee0109.github.io/"> my site </a>.</p>
