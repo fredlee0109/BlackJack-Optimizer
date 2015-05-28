@@ -27,7 +27,10 @@ The program tells the user whether to HIT, SPLIT, DOUBLE, STAND, based on availa
  * allow for different strategies, such as counting.
  * ask user if they want to have "counting" in the system
  * show statistics of winning with the using strategy
+ * percentage of winning after stand?
 
+<h3> Known Bugs </h3>
+ * Split on A/A > Hit A
 
 <p> @copyright. Everything is my work alone, and I reserve the right for this program. </p>
 <p> @Fred Lee <br /> More at <a href="http://fredlee0109.github.io/"> my site </a>.</p>
