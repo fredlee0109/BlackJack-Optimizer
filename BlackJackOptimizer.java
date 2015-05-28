@@ -1,5 +1,7 @@
 /**
  * @author Fred Lee
+ * @link https://github.com/fredlee0109/BlackJack-Optimizer
+ * Please read README.md
  *
  * Influenced by the movie 21
  *
@@ -8,6 +10,8 @@
  * Dealer Stands on Soft 17, Double After Split is Allowed, and 
  * No Surrender.
  * 
+ * Known Bugs #: 1
+ *
  * For the future: 
  * Create a GUI, 
  * save history, 
@@ -19,6 +23,7 @@
  * allow for different strategies, such as counting.
  * ask user if they want to have "counting" in the system
  * show statistics of winning with the using strategy
+ * percentage of winning after stand?
  */
 import java.util.HashMap;
 import java.util.Scanner;
@@ -38,8 +43,14 @@ public class BlackJackOptimizer {
     public int total1 = 0;
     public int total2 = 0;
     public int bsoft = 0;
+    public int bsoft1 = 0;
+    public int bsoft2 = 0;
     public boolean bpair = false;
     public boolean initialized = true;
+    public boolean splitted = false;
+    public boolean on1stSplit = true;
+    public boolean first1 = true;
+
     /**
      * BlackJackOptimizer Constructor
      * @param dealerCard : dealer's card number
@@ -211,10 +222,26 @@ public class BlackJackOptimizer {
 
     /**
      * calculates player card's total
-     * @return total
+     * @return total in Integer
      */
     private Integer total() {
         return total;
+    }
+
+    /**
+     * calculates player card's total1 in Split
+     * @return total1 in Integer
+     */
+    private Integer total1() {
+        return total1;
+    }
+
+    /**
+     * calculates player card's total2 in Split
+     * @return total2 in Integer
+     */
+    private Integer total2() {
+        return total2;
     }
 
     /**
@@ -222,22 +249,63 @@ public class BlackJackOptimizer {
      * @return Hit, Stand, Split, or Double as String.
      */
     private String decision() {
-        String total = total().toString() + dealerCard;
+        if (splitted) {
+            if (on1stSplit) {
+                String decis = total1().toString() + dealerCard;
+                if (bsoft1 != 0) {
+                    if (total1() <= 21) {
+                        return soft.get(decis);
+                    } else {
+                        int tempSoft= bsoft1;
+                        while (tempSoft != 0) {
+                            Integer tempTotal = total1() - 10;
+                            if (tempTotal <= 21 && tempTotal >= 0) {
+                                return soft.get(tempTotal.toString() + dealerCard);
+                            }
+                            tempSoft--;
+                        }
+                    }
+                } else {
+                    return hard.get(decis);
+                }
+            } else { // on 2nd split
+                String decis = total2().toString() + dealerCard;
+                if (bsoft2 != 0) {
+                    if (total2() <= 21 && total2() >= 0) {
+                        return soft.get(decis);
+                    } else {
+                        int tempSoft= bsoft2;
+                        while (tempSoft != 0) {
+                            Integer tempTotal = total2() - 10;
+                            if (tempTotal <= 21 && tempTotal >= 0) {
+                                return soft.get(tempTotal.toString() + dealerCard);
+                            }
+                            tempSoft--;
+                        }
+                    }
+                } else {
+                    return hard.get(decis);
+                }
+            }
+        } // not splitted
+        String decis = total().toString() + dealerCard;
         if (bpair) {
             Integer temp = playerCard1;
-            total = temp.toString() + dealerCard;
-            return pair.get(total);
+            return pair.get(temp.toString() + dealerCard);
         } else if (bsoft != 0) {
-            if (this.total < 21) {
-                return soft.get(total);
-            } else {
-                Integer k = total() - 10;
-                String tempTotal = k.toString() + dealerCard;
-                return hard.get(tempTotal);
+            if (total() <= 21 && total() >= 0) {
+                return soft.get(decis);
             }
-        } else {
-            return hard.get(total);
+            int tempSoft = bsoft;
+            while (tempSoft != 0) {
+                Integer tempTotal = total() - 10;
+                if (tempTotal <= 21 && tempTotal >= 0) {
+                    return soft.get(tempTotal.toString() + dealerCard);
+                }
+                tempSoft--;
+            }
         }
+        return hard.get(decis);
     }
 
     /**
@@ -246,6 +314,9 @@ public class BlackJackOptimizer {
      */
     private void hit(int card) {
         total += card;
+        if (card == 11) {
+            bsoft++;
+        }
     }
 
     /**
@@ -254,6 +325,9 @@ public class BlackJackOptimizer {
      */
     private void hit1(int card) {
         total1 += card;
+        if (card == 11) {
+            bsoft1++;
+        }
     }
 
      /**
@@ -262,13 +336,152 @@ public class BlackJackOptimizer {
      */
     private void hit2(int card) {
         total2 += card;
+        if (card == 11) {
+            bsoft2++;
+        }
     }
 
     /**
-     * main method
-     * @param args : user's inputs
+     * Shows status of the game.
      */
-    public static void main(String[] args) {
+    private void status() {
+        Boolean printed = false;
+        System.out.println();
+        System.out.print("Dealer: ");
+        System.out.print(dealerCard);
+        System.out.print(" Player: ");
+        if (total <= 21 && total >= 0 && !splitted) {
+            System.out.print(total);
+            printed = true;
+        }
+        if (splitted) {
+            System.out.print("Splitted 1: ");
+            if (total1 <= 21 && total1 >= 0) {
+                System.out.print(total1);
+                printed = true;
+            }
+            int temp = bsoft1;
+            int tempTotal = total1;
+            while (temp != 0) {
+                tempTotal -= 10;
+                if (tempTotal <= 21 && tempTotal >= 0) {
+                    if (!printed) {
+                        System.out.print(tempTotal);
+                        printed = true;
+                    } else {
+                        System.out.print(" or ");
+                        System.out.print(tempTotal);
+                    }
+                }
+                temp--;
+            }
+            System.out.print(" Splitted 2: ");
+            System.out.print(total2);
+            temp = bsoft2;
+            tempTotal = total2;
+            while (temp != 0) {
+                tempTotal -= 10;
+                if (tempTotal <= 21 && tempTotal >= 0) {
+                    if (!printed) {
+                        System.out.print(tempTotal);
+                        printed = true;
+                    } else {
+                        System.out.print(" or ");
+                        System.out.print(tempTotal);
+                    }
+                }
+                temp--;
+            }
+        }
+        else if (bsoft != 0) {
+            int temp = bsoft;
+            int tempTotal = total;
+            while (temp != 0) {
+                tempTotal -= 10;
+                if (tempTotal <= 21 && tempTotal >= 0) {
+                    if (!printed) {
+                        System.out.print(tempTotal);
+                        printed = true;
+                    } else {
+                        System.out.print(" or ");
+                        System.out.print(tempTotal);
+                    }
+                }
+                temp--;
+            }
+        }
+        System.out.println();
+    }
+
+    /**
+     * Starts a new game.
+     */
+    private void first() {
+        String decision = decision();
+        if (decision.equals("H")) {
+            System.out.println("I recommend HIT");
+            System.out.println("Type new card.");
+        } else if (decision.equals("S")) {
+            System.out.println("I recommend STAND");
+            //System.out.println("Type Dealer's cards.")
+        } else if (decision.equals("P")) {
+            splitted = true;
+            on1stSplit = true;
+            bpair = false;
+            total1 = playerCard1;
+            total2 = playerCard2; //should equal playerCard1
+            System.out.println("I recommend SPLIT and HIT");
+            System.out.println("Type new card for 1st split.");
+        } else if (decision.equals("Dh") || decision.equals("Ds")) {
+            System.out.println("I recommend DOUBLE");
+            System.out.println("Type new card.");
+        }
+    }
+
+    /**
+     * runs after player hits
+     */
+    private void next() {
+        String decision = decision();
+        if (decision.equals("H")) {
+            if (splitted) {
+                first1 = false;
+            }
+            System.out.println("I recommend HIT");
+            System.out.println("Type new card.");
+        } else if (decision.equals("S")) {
+            System.out.println("I recommend STAND");
+            if (splitted && on1stSplit) {
+                on1stSplit = false;
+                first1 = false;
+                System.out.println("Continue for 2nd Splitted Card.");
+            }
+            // } else if (splitted && !on1stSplit) {
+            //     System.out.println("Type Dealer's cards.");
+            // }
+        } else if (decision.equals("Ds")) {
+            if (splitted && on1stSplit && first1) {
+                System.out.println("I recommend DOUBLE on 1st Split");
+            } else if (splitted && !on1stSplit) {
+                System.out.println("I recommend DOUBLE on 2nd Split");
+            } else {
+                System.out.println("I recommend STAND");
+            }
+        } else if (decision.equals("Dh")) {
+            if (splitted && on1stSplit && first1) {
+                System.out.println("I recommend DOUBLE on 1st Split");
+            } else if (splitted && !on1stSplit) {
+                System.out.println("I recommend DOUBLE on 2nd Split");
+            } else {
+                System.out.println("I recommend HIT");
+            }
+        }
+    }
+
+    /**
+     * Welcoming screen. Shows once at the start of the program.
+     */
+    private static void welcome() {
         System.out.println("  -----------------------------------------");
         System.out.println("       Welcome to BlackJackOptimizer.");
         System.out.println("Remember this only works for American Style.");
@@ -278,17 +491,21 @@ public class BlackJackOptimizer {
         System.out.println("Type : [Dealer's card] [Your 1st Card] [2nd Card]");
         System.out.println("to start a new game.");
         System.out.println("Type : 'end' to stop program.");
+    }
+
+    /**
+     * main method
+     * @param args : user's inputs
+     */
+    public static void main(String[] args) {
+        BlackJackOptimizer.welcome();
 
         BlackJackOptimizer bjo = new BlackJackOptimizer();
         bjo.init();
 
         Scanner in = new Scanner(System.in);
         String userInput = in.nextLine();
-        Boolean splitted = false;
-        Boolean on1stSplit = true;
-        int splitted1 = 0;
-        int splitted2 = 0;
-        while (!userInput.equals("end")) {
+        while (!userInput.toLowerCase().equals("end")) {
             String[] numbers = userInput.split("\\s+");
             if (numbers.length != 3 && numbers.length != 1) {
                 System.out.println("Unrecognized Command.");
@@ -297,10 +514,10 @@ public class BlackJackOptimizer {
                 if (numbers.length == 3) {
                     bjo.newCards1.clear();
                     bjo.newCards2.clear();
-                    splitted = false;
                     Integer[] numbersInt = new Integer[3];
                     for (int o = 0; o < numbersInt.length; o++) {
-                        if (numbers[o].equals("A") || numbers[o].equals("a")) {
+                        if (numbers[o].equals("A") || numbers[o].equals("a")
+                            || numbers[o].equals("1")) {
                             numbersInt[o] = 11;
                         } else if (numbers[o].equals("K") || numbers[o].equals("k") 
                             || numbers[o].equals("Q") || numbers[o].equals("q")
@@ -315,39 +532,8 @@ public class BlackJackOptimizer {
                     if (bjo.total() == 21) {
                         System.out.println("Black Jack! You Win!");
                     } else {
-                        System.out.println();
-                        System.out.print("Dealer: ");
-                        System.out.print(numbers[0]);
-                        System.out.print(" Player: ");
-                        if (bjo.total() > 21 && bjo.bsoft != 0) {
-                            bjo.total -= 10;
-                        }
-                        System.out.print(bjo.total());
-                        if (bjo.bsoft != 0 && bjo.total() - 10 <= 21) {
-                            System.out.print(" or ");
-                            System.out.print(bjo.total() - 10);
-                        }
-                        System.out.println();
-                        String decision = bjo.decision();
-                        if (decision.equals("H")) {
-                            System.out.println("I recommend HIT");
-                            System.out.println("Type new card.");
-                        } else if (decision.equals("S")) {
-                            System.out.println("I recommend STAND");
-                        } else if (decision.equals("P")) {
-                            splitted = true;
-                            on1stSplit = true;
-                            splitted1 = bjo.playerCard1;
-                            splitted2 = bjo.playerCard2;
-                            System.out.print("I recommend SPLIT and HIT to: ");
-                            System.out.print(splitted1);
-                            System.out.print(" and ");
-                            System.out.println(splitted2);
-                            System.out.println("Type new card for 1st split");
-                        } else if (decision.equals("Dh") || decision.equals("Ds")) {
-                            System.out.println("I recommend DOUBLE");
-                            System.out.println("Type new card.");
-                        }
+                        bjo.status();
+                        bjo.first();
                     }
                     // else
                     // 1) hit: hit/stand
@@ -357,14 +543,15 @@ public class BlackJackOptimizer {
                     if (!bjo.initialized) {
                         System.out.println("Please start a new game first.");
                     } else {
-                        if (!splitted) {
+                        if (!bjo.splitted) {
                             if (bjo.newCards1.containsKey(numbers[0])) {
                                 int val = bjo.newCards1.get(numbers[0]);
                                 bjo.newCards1.put(numbers[0], val++);
                             } else {
                                 bjo.newCards1.put(numbers[0], 1);
                             }
-                            if (numbers[0].equals("A") || numbers[0].equals("a")) {
+                            if (numbers[0].equals("A") || numbers[0].equals("a")
+                                || numbers[0].equals("1")) {
                                 bjo.hit(11);
                                 bjo.bsoft++;
                             } else if (numbers[0].equals("K") || numbers[0].equals("k")
@@ -374,14 +561,15 @@ public class BlackJackOptimizer {
                             } else {
                                 bjo.hit(Integer.parseInt(numbers[0]));
                             }
-                        } else if (on1stSplit) {
+                        } else if (bjo.on1stSplit) {
                             if (bjo.newCards1.containsKey(numbers[0])) {
                                 int val = bjo.newCards1.get(numbers[0]);
                                 bjo.newCards1.put(numbers[0], val++);
                             } else {
                                 bjo.newCards1.put(numbers[0], 1);
                             }
-                            if (numbers[0].equals("A") || numbers[0].equals("a")) {
+                            if (numbers[0].equals("A") || numbers[0].equals("a")
+                                || numbers[0].equals("1")) {
                                 bjo.hit1(11);
                                 bjo.bsoft++;
                             } else if (numbers[0].equals("K") || numbers[0].equals("k")
@@ -398,7 +586,8 @@ public class BlackJackOptimizer {
                             } else {
                                 bjo.newCards2.put(numbers[0], 1);
                             }
-                            if (numbers[0].equals("A") || numbers[0].equals("a")) {
+                            if (numbers[0].equals("A") || numbers[0].equals("a")
+                                || numbers[0].equals("1")) {
                                 bjo.hit2(11);
                                 bjo.bsoft++;
                             } else if (numbers[0].equals("K") || numbers[0].equals("k")
@@ -409,59 +598,32 @@ public class BlackJackOptimizer {
                                 bjo.hit2(Integer.parseInt(numbers[0]));
                             }
                         }
-                        System.out.println();
-                        System.out.print("Dealer: ");
-                        System.out.print(bjo.dealerCard);
-                        System.out.print(" Player: ");
                         if (bjo.total() > 21 && bjo.bsoft != 0) {
                             bjo.total -= 10;
                             bjo.bsoft--;
                         }
-                        System.out.print(bjo.total());
-                        if (bjo.bsoft != 0 && bjo.total() - 10 <= 21) {
-                            System.out.print(" or ");
-                            System.out.print(bjo.total() - 10);
-                        }
-                        System.out.println();
-                        if (bjo.bsoft != 0 && bjo.total - 10 > 21) {
+                        bjo.status();
+                        if (bjo.bsoft != 0 && bjo.total > 21) {
                             bjo.total -= 10;
+                            bjo.bsoft--;
                         }
-                        if (bjo.bsoft == 0 && bjo.total() > 21) {
+                        if (bjo.bsoft1 != 0 && bjo.total1 > 21) {
+                            bjo.total1 -= 10;
+                            bjo.bsoft1--;
+                        }
+                        if (bjo.bsoft2 != 0 && bjo.total2 > 21) {
+                            bjo.total2 -= 10;
+                            bjo.bsoft2--;
+                        }
+                        if (!bjo.splitted && bjo.bsoft == 0 && bjo.total() > 21) {
                             System.out.println("You lost! :(");
                         } else if (bjo.bsoft != 0 && 
                             (bjo.total() > 21 && bjo.total() - 10 > 21)) {
                             System.out.println("You lost! :(");
+                        } else if (bjo.splitted && bjo.total1 > 21 && bjo.total2 > 21) {
+                            System.out.println("You lost! :(");
                         } else {
-                            if (splitted) {
-                                if (on1stSplit) {
-                                    bjo.total = splitted1;
-                                } else {
-                                    bjo.total = splitted2;
-                                }
-                            }
-                            String decision = bjo.decision();
-                            if (decision.equals("H")) {
-                                System.out.println("I recommend HIT");
-                                System.out.println("Type new card.");
-                            } else if (decision.equals("S")) {
-                                System.out.println("I recommend STAND");
-                                if (splitted && on1stSplit && bjo.total() > 21) {
-                                    on1stSplit = false;
-                                    System.out.println("Hit for 2nd Splitted Card.");
-                                }
-                            } else if (decision.equals("Ds")) {// only runs after split
-                                if (splitted) {
-                                    System.out.println("I recommend DOUBLE");
-                                } else {
-                                    System.out.println("I recommend STAND");
-                                }
-	                        } else if (decision.equals("Dh")) {// only runs after split
-                                if (splitted) {
-                                    System.out.println("I recommend DOUBLE");
-                                } else {
-                                    System.out.println("I recommend HIT");
-                                }
-	                        }
+                            bjo.next();
                         }
                     }
                 }
