@@ -33,7 +33,7 @@ public class BlackJackOptimizer {
     public static HashMap<String, String> soft = new HashMap();
     public static HashMap<String, String> pair = new HashMap();
     public HashMap<String, Integer> newCards1 = new HashMap(); 
-    // card to count
+    // card to count (don't need it with this version, but owell *shrugs*)
     public HashMap<String, Integer> newCards2 = new HashMap();
     // card to count
     public int dealerCard; //from 1 to 11, with 11 = Ace
@@ -456,9 +456,6 @@ public class BlackJackOptimizer {
                 first1 = false;
                 System.out.println("Continue for 2nd Splitted Card.");
             }
-            // } else if (splitted && !on1stSplit) {
-            //     System.out.println("Type Dealer's cards.");
-            // }
         } else if (decision.equals("Ds")) {
             if (splitted && on1stSplit && first1) {
                 System.out.println("I recommend DOUBLE on 1st Split");
@@ -535,10 +532,6 @@ public class BlackJackOptimizer {
                         bjo.status();
                         bjo.first();
                     }
-                    // else
-                    // 1) hit: hit/stand
-                    // 2) split: hit/double/stand > hit/stand. for both.
-                    // 3) stand: done.
                 } else { // length == 1
                     if (!bjo.initialized) {
                         System.out.println("Please start a new game first.");
