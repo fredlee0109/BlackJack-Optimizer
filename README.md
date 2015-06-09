@@ -33,4 +33,4 @@ The program tells the user whether to HIT, SPLIT, DOUBLE, STAND, based on availa
  * Split on A/A > Hit A
 
 <p> @copyright. Everything is my work alone, and I reserve the right for this program. </p>
-<p> @Fred Lee <br /> More at <a href="http://fredlee0109.github.io/"> my site </a>.</p>
+<p> @Fred Lee <br /> More of me at <a href="http://fredlee0109.github.io/"> my site </a>.</p>
