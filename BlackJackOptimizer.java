@@ -10,7 +10,9 @@
  * Dealer Stands on Soft 17, Double After Split is Allowed, and 
  * No Surrender.
  * 
- * Known Bugs #: 1
+ * Known Bugs #: 2
+ *      Split on A/A > Hit A
+ *      Split on A/A > Bust on 1st Split
  *
  * For the future: 
  * Create a GUI, 
@@ -426,6 +428,7 @@ public class BlackJackOptimizer {
             System.out.println("Type new card.");
         } else if (decision.equals("S")) {
             System.out.println("I recommend STAND");
+            saveHistory();
             //System.out.println("Type Dealer's cards.")
         } else if (decision.equals("P")) {
             splitted = true;
@@ -458,6 +461,8 @@ public class BlackJackOptimizer {
                 on1stSplit = false;
                 first1 = false;
                 System.out.println("Continue for 2nd Splitted Card.");
+            } else {
+                saveHistory();
             }
         } else if (decision.equals("Ds")) {
             if (splitted && on1stSplit && first1) {
@@ -466,6 +471,7 @@ public class BlackJackOptimizer {
                 System.out.println("I recommend DOUBLE on 2nd Split");
             } else {
                 System.out.println("I recommend STAND");
+                saveHistory();
             }
         } else if (decision.equals("Dh")) {
             if (splitted && on1stSplit && first1) {
@@ -502,6 +508,7 @@ public class BlackJackOptimizer {
 
     /**
      * Displays record history
+     * Runs only if user calls "history"
      */
     private void showHistory() {
         System.out.println("You have a record [W-L] of: " + win + " - " + loss);
@@ -524,10 +531,12 @@ public class BlackJackOptimizer {
         System.out.println("to start a new game.");
     }
 
-    /**
-     * Saves history if boolean history == true
+    /*
+     * Runs if boolean history == true
+     * Runs with asking "Did you win or lose?" (probably only after STAND)
      */
     private void saveHistory() {
+        System.out.println("Did you win or lose?");
         Scanner in = new Scanner(System.in);
         String userInput = in.nextLine();
         if (userInput.toLowerCase().equals("win") || userInput.toLowerCase().equals("w") ||
@@ -536,7 +545,23 @@ public class BlackJackOptimizer {
         } else {
             loss++;
         }
-        System.out.println("You now have a record [W-L] of: " + win + " - " + loss);
+        System.out.println("You have a record [W-L] of: " + win + " - " + loss);
+    }
+
+    /**
+     * Runs after it is obvious that the user lost
+     */
+    private void lost() {
+        loss++;
+        System.out.println("You have a record [W-L] of: " + win + " - " + loss);
+    }
+
+    /**
+     * Runs after it is obvious that the user won
+     */
+    private void won() {
+        win++;
+        System.out.println("You have a record [W-L] of: " + win + " - " + loss);
     }
 
     /**
@@ -554,7 +579,15 @@ public class BlackJackOptimizer {
 
         while (!userInput.toLowerCase().equals("end")) {
             String[] numbers = userInput.split("\\s+");
-            if (numbers.length != 3 && numbers.length != 1) {
+            if (numbers.length == 1 && numbers[0].toLowerCase().equals("help")) {
+                help();
+                in = new Scanner(System.in);
+                userInput = in.nextLine();
+            } else if (numbers.length == 1 && numbers[0].toLowerCase().equals("history")) {
+                bjo.showHistory();
+                in = new Scanner(System.in);
+                userInput = in.nextLine();
+            } else if (numbers.length != 3 && numbers.length != 1) {
                 System.out.println("Unrecognized Command.");
                 break;
             } else {
@@ -578,6 +611,8 @@ public class BlackJackOptimizer {
                         numbersInt[2]);
                     if (bjo.total() == 21) {
                         System.out.println("Black Jack! You Win!");
+                        bjo.won();
+                        bjo.showHistory();
                     } else {
                         bjo.status();
                         bjo.first();
@@ -662,11 +697,14 @@ public class BlackJackOptimizer {
                         }
                         if (!bjo.splitted && bjo.bsoft == 0 && bjo.total() > 21) {
                             System.out.println("You lost! :(");
+                            bjo.lost();
                         } else if (bjo.bsoft != 0 && 
                             (bjo.total() > 21 && bjo.total() - 10 > 21)) {
                             System.out.println("You lost! :(");
+                            bjo.lost();
                         } else if (bjo.splitted && bjo.total1 > 21 && bjo.total2 > 21) {
                             System.out.println("You lost! :(");
+                            bjo.lost();
                         } else {
                             bjo.next();
                         }
