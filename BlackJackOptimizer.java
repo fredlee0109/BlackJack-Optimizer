@@ -580,7 +580,7 @@ public class BlackJackOptimizer {
         while (!userInput.toLowerCase().equals("end")) {
             String[] numbers = userInput.split("\\s+");
             if (numbers.length == 1 && numbers[0].toLowerCase().equals("help")) {
-                help();
+                help(); 
                 in = new Scanner(System.in);
                 userInput = in.nextLine();
             } else if (numbers.length == 1 && numbers[0].toLowerCase().equals("history")) {
