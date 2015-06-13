@@ -488,9 +488,23 @@ public class BlackJackOptimizer {
         System.out.println("     Type: 'help' for list of commands");
         System.out.println("             @author Fred Lee");
         System.out.println("  -----------------------------------------");
-        System.out.println("Type : [Dealer's card] [Your 1st Card] [2nd Card]");
-        System.out.println("to start a new game.");
-        System.out.println("Type : 'end' to stop program.");
+        System.out.println("Type : 'help' for supported commands.");
+    }
+
+    /**
+     * Displays supported commands.
+     */
+    private static void help() {
+        System.out.println("The currently supported commands are:");
+        System.out.println("   exit      Halts the program");
+        System.out.println("   history   Displays record history");
+    }
+
+    /**
+     * Displays record history
+     */
+    private void showHistory() {
+        System.out.println("You have a record [W-L] of: " + win + " - " + loss);
     }
 
     /**
@@ -503,7 +517,11 @@ public class BlackJackOptimizer {
         if (userInput.toLowerCase().equals("yes") || userInput.toLowerCase().equals("y")) {
             history = true;
             System.out.println("Type 'win' or 'loss' after each game to save your record.");
+        } else {
+            System.out.println("Ok :(");
         }
+        System.out.println("Type : [Dealer's card] [Your 1st Card] [2nd Card]");
+        System.out.println("to start a new game.");
     }
 
     /**
@@ -529,6 +547,7 @@ public class BlackJackOptimizer {
         BlackJackOptimizer.welcome();
         BlackJackOptimizer bjo = new BlackJackOptimizer();
         bjo.init();
+        bjo.history();
 
         Scanner in = new Scanner(System.in);
         String userInput = in.nextLine();
@@ -566,6 +585,8 @@ public class BlackJackOptimizer {
                 } else { // length == 1
                     if (!bjo.initialized) {
                         System.out.println("Please start a new game first.");
+                    } else if (numbers[0].toLowerCase().equals("help")) {
+                        bjo.help();
                     } else {
                         if (!bjo.splitted) {
                             if (bjo.newCards1.containsKey(numbers[0])) {
