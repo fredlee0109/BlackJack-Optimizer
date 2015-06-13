@@ -29,27 +29,30 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class BlackJackOptimizer {
-    public static HashMap<String, String> hard = new HashMap();
-    public static HashMap<String, String> soft = new HashMap();
-    public static HashMap<String, String> pair = new HashMap();
-    public HashMap<String, Integer> newCards1 = new HashMap(); 
+    private static HashMap<String, String> hard = new HashMap();
+    private static HashMap<String, String> soft = new HashMap();
+    private static HashMap<String, String> pair = new HashMap();
+    private HashMap<String, Integer> newCards1 = new HashMap(); 
     // card to count (don't need it with this version, but owell *shrugs*)
-    public HashMap<String, Integer> newCards2 = new HashMap();
+    private HashMap<String, Integer> newCards2 = new HashMap();
     // card to count
-    public int dealerCard; //from 1 to 11, with 11 = Ace
-    public int playerCard1;
-    public int playerCard2;
-    public int total = 0;
-    public int total1 = 0;
-    public int total2 = 0;
-    public int bsoft = 0;
-    public int bsoft1 = 0;
-    public int bsoft2 = 0;
-    public boolean bpair = false;
-    public boolean initialized = true;
-    public boolean splitted = false;
-    public boolean on1stSplit = true;
-    public boolean first1 = true;
+    private int dealerCard; //from 1 to 11, with 11 = Ace
+    private int playerCard1;
+    private int playerCard2;
+    private int total = 0;
+    private int total1 = 0;
+    private int total2 = 0;
+    private int bsoft = 0;
+    private int bsoft1 = 0;
+    private int bsoft2 = 0;
+    private boolean bpair = false;
+    private boolean initialized = true;
+    private boolean splitted = false;
+    private boolean on1stSplit = true;
+    private boolean first1 = true;
+    private boolean history = false;
+    private int win = 0;
+    private int loss = 0;
 
     /**
      * BlackJackOptimizer Constructor
@@ -491,17 +494,45 @@ public class BlackJackOptimizer {
     }
 
     /**
+     * Runs at the start of the program to ask the user if they want to save history
+     */
+    private void history() {
+        System.out.println("Do you want to save your record history?");
+        Scanner in = new Scanner(System.in);
+        String userInput = in.nextLine();
+        if (userInput.toLowerCase().equals("yes") || userInput.toLowerCase().equals("y")) {
+            history = true;
+            System.out.println("Type 'win' or 'loss' after each game to save your record.");
+        }
+    }
+
+    /**
+     * Saves history if boolean history == true
+     */
+    private void saveHistory() {
+        Scanner in = new Scanner(System.in);
+        String userInput = in.nextLine();
+        if (userInput.toLowerCase().equals("win") || userInput.toLowerCase().equals("w") ||
+            userInput.toLowerCase().equals("yes") || userInput.toLowerCase().equals("y")) {
+            win++;
+        } else {
+            loss++;
+        }
+        System.out.println("You now have a record [W-L] of: " + win + " - " + loss);
+    }
+
+    /**
      * main method
      * @param args : user's inputs
      */
     public static void main(String[] args) {
         BlackJackOptimizer.welcome();
-
         BlackJackOptimizer bjo = new BlackJackOptimizer();
         bjo.init();
 
         Scanner in = new Scanner(System.in);
         String userInput = in.nextLine();
+
         while (!userInput.toLowerCase().equals("end")) {
             String[] numbers = userInput.split("\\s+");
             if (numbers.length != 3 && numbers.length != 1) {
