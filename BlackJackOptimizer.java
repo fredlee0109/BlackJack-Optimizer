@@ -524,8 +524,10 @@ public class BlackJackOptimizer {
         if (userInput.toLowerCase().equals("yes") || userInput.toLowerCase().equals("y")) {
             history = true;
             System.out.println("Type 'win' or 'loss' after each game to save your record.");
-        } else {
+        } else if (userInput.toLowerCase().equals("no") || userInput.toLowerCase().equal("n")) {
             System.out.println("Ok :(");
+        } else {
+            System.out.println("I'll take that as a 'no'...");
         }
         System.out.println("Type : [Dealer's card] [Your 1st Card] [2nd Card]");
         System.out.println("to start a new game.");
